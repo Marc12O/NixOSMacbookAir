@@ -2,13 +2,22 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
+
+  boot = {
+    kernelModules = [ "applesmc" "i915" ];
+    kernelParams = [ "hid_apple.iso_layout=0" "acpi_backlight=vendor" "acpi_mask_gpe=0x15" ];
+  };
+
+  services.xserver.deviceSection = lib.mkDefault ''
+    Option "TearFree" "true"
+  '';
 
   hardware.cpu.intel.updateMicrocode = true;
 
@@ -26,7 +35,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 1;
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "nixosMA"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Set your time zone.
@@ -54,11 +63,9 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-
   # Enable the Plasma 5 Desktop Environment.
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-  
 
   # Configure keymap in X11
   services.xserver.layout = "us";
@@ -97,15 +104,18 @@
     okular
     protonvpn-cli
     filezilla
+    jupyter
+    oathToolkit
+    gnupg
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+  programs.mtr.enable = true;
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+  };
 
   # List services that you want to enable:
 
@@ -125,6 +135,7 @@
 
   powerManagement.enable = true;
   powerManagement.cpuFreqGovernor = "schedutil";
+  #powerManagement.cpuFreqGovernor = "performance";
 
   services.mbpfan.enable = true;
 
@@ -144,5 +155,5 @@
   system.autoUpgrade.allowReboot = true;
 
   services.fstrim.enable = true;
-  boot.kernel.sysctl = { "vm.swappiness" = 1; };
+  boot.kernel.sysctl = { "vm.swappiness" = 10; };
 }
