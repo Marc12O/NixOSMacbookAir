@@ -12,6 +12,7 @@
 
   boot = {
     kernelModules = [ "applesmc" "i915" ];
+    # https://forum.manjaro.org/t/kworker-kacpid-over-70-of-cpu-dual-boot-mac-manjaro/61981
     kernelParams = [ "hid_apple.iso_layout=0" "acpi_backlight=vendor" "acpi_mask_gpe=0x15" ];
   };
 
